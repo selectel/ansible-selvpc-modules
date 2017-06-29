@@ -1,0 +1,13 @@
+---
+username: TestUser
+password: 123456
+project_name: TestProject
+image: Ubuntu 16.04 LTS 32-bit
+volumes:
+  - display_name: volume1
+  - display_name: volume2
+  - display_name: volume3
+servers:
+  - name: vm1
+  - name: vm2
+  - name: vm3

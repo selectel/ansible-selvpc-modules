@@ -1,0 +1,193 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - example_vars.yaml
+  tasks:
+     - name: Create project
+       ignore_errors: yes
+       selvpc_projects:
+           project_name: "{{ project_name }}"
+       register: project_out
+     - debug: msg={{ project_out }}
+
+     - name: Set quotas on created project
+       ignore_errors: yes
+       selvpc_quotas:
+           project_id: "{{ project_out.project.id }}"
+           quotas:
+               compute_cores:
+               - region: ru-1
+                 zone: ru-1a
+                 value: 3
+               compute_ram:
+               - region: ru-1
+                 zone: ru-1a
+                 value: 1536
+               volume_gigabytes_fast:
+               - region: ru-1
+                 zone: ru-1a
+                 value: 15
+       register: quotas_out
+     - debug: msg={{ quotas_out }}
+
+     - name: Create user
+       ignore_errors: yes
+       selvpc_users:
+           username: "{{ username }}"
+           password: "{{ password }}"
+       register: user_out
+     - debug: msg={{ user_out }}
+
+     - name: Add created user to project
+       ignore_errors: yes
+       selvpc_roles:
+           project_id: "{{ project_out.project.id }}"
+           user_id: "{{ user_out.user.id }}"
+       register: out
+     - debug: msg={{ out }}
+
+     - name: Create public net
+       ignore_errors: yes
+       selvpc_subnets:
+            project_id: "{{ project_out.project.id }}"
+            subnets:
+              - region: ru-1
+                type: ipv4
+                quantity: 1
+                prefix_length: 29
+       register: public_net
+     - debug: msg={{ public_net }}
+
+     - name: Get info about network
+       ignore_errors: yes
+       selvpc_subnets:
+            subnet_id: "{{ public_net|json_query('subnets[0].id') }}"
+       register: network_out
+     - debug: msg={{ network_out }}
+
+     - name: Create volumes
+       ignore_errors: yes
+       os_volume:
+          state: present
+          auth:
+            auth_url: https://api.selvpc.ru/identity/v3
+            username: "{{ username }}"
+            password: "{{ password }}"
+            project_name: "{{ project_name }}"
+          display_name: "{{ item.display_name }}"
+          image: "{{ image }}"
+          size: 5
+          region_name: ru-1
+       with_items: "{{ volumes }}"
+       register: volume
+     - debug: msg={{ volume }}
+
+     - name: Create key
+       ignore_errors: yes
+       os_keypair:
+          state: present
+          auth:
+            auth_url: https://api.selvpc.ru/identity/v3
+            username: "{{ username }}"
+            password: "{{ password }}"
+            project_name: "{{ project_name }}"
+          name: ansible_key
+          region_name: ru-1
+          public_key_file: "{{ '~' | expanduser }}/.ssh/id_rsa.pub"
+       register: key
+     - debug: msg={{ key }}
+
+     - name: Create flavor
+       ignore_errors: yes
+       os_nova_flavor:
+          state: present
+          auth:
+            auth_url: https://api.selvpc.ru/identity/v3
+            username: "{{ username }}"
+            password: "{{ password }}"
+            project_name: "{{ project_name }}"
+          name: sel_test_flav
+          ram: 512
+          vcpus: 1
+          disk: 0
+          region_name: ru-1
+          is_public: False
+       register: flavor
+     - debug: msg={{ flavor }}
+
+     - name: Create servers
+       ignore_errors: yes
+       os_server:
+          state: present
+          auth:
+            auth_url: https://api.selvpc.ru/identity/v3
+            username: "{{ username }}"
+            password: "{{ password }}"
+            project_name: "{{ project_name }}"
+          name: "{{ item.1.name }}"
+          flavor: "{{ flavor.id }}"
+          boot_volume: "{{ item.0 }}"
+          nics: "net-id={{ network_out.subnet.network_id }}"
+          key_name: ansible_key
+          region_name: ru-1
+       with_together:
+          - "{{ volume|json_query('results[*].id') }}"
+          - "{{ servers }}"
+       register: created_servers
+     - debug: msg={{ created_servers }}
+
+     - name: Add hosts to inventory
+       ignore_errors: yes
+       add_host:
+          name: "{{ item }}"
+          ansible_host: "{{ item }}"
+          ansible_ssh_user: root
+          groups: just_created
+       with_items: "{{ created_servers|json_query('results[*].openstack.accessIPv4') }}"
+
+     - pause:
+         seconds: 60
+
+- hosts: just_created
+  tasks:
+    - name: Ping all instances
+      ignore_errors: yes
+      ping:
+      register: results
+    - debug: msg={{ results }}
+
+- hosts: localhost
+  gather_facts: no
+  vars_files:
+    - example_vars.yaml
+  tasks:
+    - name: Delete flavor
+      ignore_errors: yes
+      os_nova_flavor:
+          state: absent
+          auth:
+            auth_url: https://api.selvpc.ru/identity/v3
+            username: "{{ username }}"
+            password: "{{ password }}"
+            project_name: "{{ project_name }}"
+          name: sel_test_flav
+          region_name: ru-1
+      register: out
+    - debug: msg={{ out }}
+
+    - name: Delete user
+      ignore_errors: yes
+      selvpc_users:
+           user_id: "{{ user_out.user.id }}"
+           state: absent
+      register: out
+    - debug: msg={{ out }}
+
+    - name: Delete project
+      ignore_errors: yes
+      selvpc_projects:
+           project_id: "{{ project_out.project.id }}"
+           state: absent
+      register: out
+    - debug: msg={{ out }}

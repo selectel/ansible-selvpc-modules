@@ -1,0 +1,17 @@
+*.pyc
+.idea
+*.retry
+
+.venv
+.cache
+
+# Packages
+.eggs
+*.egg
+*.egg-info
+dist
+build
+eggs
+sdist
+MANIFEST
+/.tox/
