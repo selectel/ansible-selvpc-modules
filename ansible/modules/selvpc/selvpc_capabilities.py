@@ -48,6 +48,8 @@ import os
 from selvpcclient.client import setup_http_client, Client
 from selvpcclient.exceptions.base import ClientException
 
+from ansible.modules.selvpc import custom_user_agent
+
 
 def main():
     module = AnsibleModule(argument_spec=dict(
@@ -65,7 +67,9 @@ def main():
 
     # Configure REST client
     try:
-        http_client = setup_http_client(url, api_token=token)
+        http_client = setup_http_client(url,
+                                        api_token=token,
+                                        custom_headers=custom_user_agent)
         client = Client(http_client)
     except Exception as exp:
         module.fail_json(msg="No token given")

@@ -85,6 +85,7 @@ from ansible.module_utils.selvpc_utils.roles import (delete_role, add_role,
 from ansible.module_utils.selvpc_utils.common import (_check_user_role,
                                                       _check_project_roles,
                                                       get_project_by_name)
+from ansible.modules.selvpc import custom_user_agent
 
 
 def _system_state_change(module, client):
@@ -138,7 +139,9 @@ def main():
 
     # Configure REST client
     try:
-        http_client = setup_http_client(url, api_token=token)
+        http_client = setup_http_client(url,
+                                        api_token=token,
+                                        custom_headers=custom_user_agent)
         client = Client(http_client)
     except Exception:
         module.fail_json(msg="No token given")

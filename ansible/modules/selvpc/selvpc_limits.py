@@ -57,6 +57,7 @@ from selvpcclient.client import setup_http_client, Client
 
 from ansible.module_utils.selvpc_utils.limits import (get_domain_quotas,
                                                       get_free_domain_quotas)
+from ansible.modules.selvpc import custom_user_agent
 
 
 def main():
@@ -74,7 +75,9 @@ def main():
 
     # Configure REST client
     try:
-        http_client = setup_http_client(url, api_token=token)
+        http_client = setup_http_client(url,
+                                        api_token=token,
+                                        custom_headers=custom_user_agent)
         client = Client(http_client)
     except Exception:
         module.fail_json(msg="No token given")

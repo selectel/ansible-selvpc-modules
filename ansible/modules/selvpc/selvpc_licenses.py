@@ -107,6 +107,7 @@ from ansible.module_utils.selvpc_utils.licenses import (delete_license,
 from ansible.module_utils.selvpc_utils.common import (get_project_by_name,
                                                       compare_existed_and_needed_objects,
                                                       _check_valid_quantity)
+from ansible.modules.selvpc import custom_user_agent
 
 
 def _check_license_exists(client, license_id):
@@ -174,7 +175,9 @@ def main():
 
     # Configure REST client
     try:
-        http_client = setup_http_client(url, api_token=token)
+        http_client = setup_http_client(url,
+                                        api_token=token,
+                                        custom_headers=custom_user_agent)
         client = Client(http_client)
     except Exception:
         module.fail_json(msg="No token given")
