@@ -17,7 +17,7 @@ def create_object_wrapper(object_type):
             try:
                 result, changed, msg = func(*args, **kwargs)
             except ClientException as exp:
-                args[0].fail_json(msg=str(exp))
+                return args[0].fail_json(msg=str(exp))
             else:
                 params.update({"changed": changed, "msg": msg})
                 if result:
@@ -37,7 +37,7 @@ def create_object_wrapper(object_type):
                                            [el._info for el in result]})
                     else:
                         params.update({object_type: result._info})
-            args[0].exit_json(**params)
+            return args[0].exit_json(**params)
 
         return inner
     return decorator
@@ -55,14 +55,14 @@ def get_object_wrapper(object_type):
             try:
                 result = func(*args, **kwargs)
             except ClientException as exp:
-                args[0].fail_json(msg=str(exp))
+                return args[0].fail_json(msg=str(exp))
             else:
                 if isinstance(result, list):
                     params.update({make_plural(object_type):
                                        [el._info for el in result]})
                 else:
                     params.update({object_type: result._info})
-            args[0].exit_json(**params)
+            return args[0].exit_json(**params)
 
         return inner
     return decorator
@@ -79,9 +79,9 @@ def delete_object_wrapper(func):
         try:
             func(*args, **kwargs)
         except ClientException:
-            args[0].fail_json(msg="Object doesn't exist")
+            return args[0].fail_json(msg="Object doesn't exist")
         else:
-            args[0].exit_json(changed=True, msg="Successfully deleted")
+            return args[0].exit_json(changed=True, msg="Successfully deleted")
 
     return inner
 
@@ -97,8 +97,8 @@ def update_object_wrapper(func):
         try:
             changed, msg = func(*args, **kwargs)
         except ClientException as exp:
-            args[0].fail_json(msg=str(exp))
+            return args[0].fail_json(msg=str(exp))
         else:
-            args[0].exit_json(changed=changed, msg=msg)
+            return args[0].exit_json(changed=changed, msg=msg)
 
     return inner

@@ -1,8 +1,11 @@
 import pytest
 
-from ansible.module_utils.selvpc_utils.licenses import parse_licenses_to_add
-from ansible.module_utils.selvpc_utils.subnets import parse_subnets_to_add
-from ansible.module_utils.selvpc_utils.floatingips import parse_floatingips_to_add
+from ansible.module_utils.selvpc_utils.licenses import \
+    parse_licenses_to_add
+from ansible.module_utils.selvpc_utils.subnets import \
+    parse_subnets_to_add
+from ansible.module_utils.selvpc_utils.floatingips import \
+    parse_floatingips_to_add
 
 FLOATING_IPS_INPUT = [
     {"region": "ru-1", "quantity": 1},

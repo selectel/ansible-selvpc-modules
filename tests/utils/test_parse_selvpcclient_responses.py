@@ -1,10 +1,11 @@
 import pytest
 
-from tests.mock_objects import PROJECT_ID, get_mocked_client
-
 from ansible.module_utils.selvpc_utils.licenses import get_project_licenses_quantity
 from ansible.module_utils.selvpc_utils.floatingips import get_project_ips_quantity
 from ansible.module_utils.selvpc_utils.subnets import get_project_subnets_quantity
+
+from tests.mock_objects import get_mocked_client
+from tests import params
 
 
 FLOATING_IPS_PARSED_OUTPUT = {
@@ -25,16 +26,16 @@ LICENSES_PARSED_OUTPUT = {
 def test_parse_existing_floating_ips():
     client = get_mocked_client()
     assert get_project_ips_quantity(
-        client, PROJECT_ID) == FLOATING_IPS_PARSED_OUTPUT
+        client, params.PROJECT_ID) == FLOATING_IPS_PARSED_OUTPUT
 
 
 def test_parse_existing_subnets():
     client = get_mocked_client()
     assert get_project_subnets_quantity(
-        client, PROJECT_ID) == SUBNETS_PARSED_OUTPUT
+        client, params.PROJECT_ID) == SUBNETS_PARSED_OUTPUT
 
 
 def test_parse_existing_licenses():
     client = get_mocked_client()
     assert get_project_licenses_quantity(
-        client, PROJECT_ID) == LICENSES_PARSED_OUTPUT
+        client, params.PROJECT_ID) == LICENSES_PARSED_OUTPUT
