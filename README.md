@@ -1,4 +1,7 @@
 # ansible-selvpc-modules
+
+[![Build Status](https://travis-ci.org/selectel/ansible-selvpc-modules.svg?branch=master)](https://travis-ci.org/selectel/ansible-selvpc-modules)
+
 Modules implement VPC project management via VPC Resell API. 'python-selvpcclient' is used to work with the API.
 Modules cover all methods of 'python-selvpcclient'.
 
