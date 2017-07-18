@@ -111,7 +111,9 @@ def main():
         project_name=dict(type='str'),
         project_id=dict(type='str'),
         new_name=dict(type='str'),
-        quotas=dict(type='dict'),
+        cname=dict(type='str'),
+        logo=dict(type='str'),
+        color=dict(type='str')
     ), supports_check_mode=True)
 
     if module.params['token']:
@@ -137,14 +139,17 @@ def main():
     state = module.params.get('state')
     show_list = module.params.get('list')
     new_name = module.params.get('new_name')
+    cname = module.params.get('cname')
+    logo = module.params.get('logo')
+    color = module.params.get('color')
 
     if state == 'absent' and (project_id or project_name):
         delete_project(module, client, project_id, project_name)
 
     if state == "present":
-
-        if new_name and (project_id or project_name):
-            update_project(module, client, project_id, project_name, new_name)
+        if any([new_name, cname, logo, color]) and (project_id or project_name):
+            update_project(module, client, project_id, project_name, new_name,
+                           cname, logo, color)
 
         if project_name and not get_project_by_name(client, project_name):
             create_project(module, client, project_name)

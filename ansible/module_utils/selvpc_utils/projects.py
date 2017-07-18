@@ -25,13 +25,14 @@ def get_project(module, client, project_id, project_name, show_list=False):
 @update_object_wrapper
 @check_project_id
 def update_project(module, client, project_id, project_name,
-                   new_project_name):
+                   new_project_name, cname, logo, color):
     changed, msg = False, "Nothing to change"
     if not get_project_by_name(client, new_project_name):
-        client.projects.update(project_id, new_project_name)
+        client.projects.update(project_id, new_project_name,
+                               cname=cname,
+                               logo=logo,
+                               color=color)
         changed, msg = True, "Project updated"
-    else:
-        msg = "Project with such name already exists"
     return changed, msg
 
 

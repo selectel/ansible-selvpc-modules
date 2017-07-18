@@ -28,7 +28,7 @@ def test_update_project_name_existed():
 
     @update_object_wrapper
     def function_that_return_project_params(module, client):
-        return False, "Project with such name already exists"
+        return False, "Nothing to change"
 
     output = function_that_return_project_params(module, client)
 

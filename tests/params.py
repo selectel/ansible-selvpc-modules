@@ -42,7 +42,7 @@ PROJECT_UPDATED = {
 
 PROJECT_EXISTS = {
     "changed": False,
-    "msg": "Project with such name already exists"
+    "msg": "Nothing to change"
 }
 
 PROJECT_LIST = [
