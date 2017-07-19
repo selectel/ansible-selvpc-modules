@@ -1,5 +1,5 @@
 from ansible.module_utils.selvpc_utils.common import (_check_user_role,
-                                                      _check_project_roles,
+                                                      get_project_roles_to_add,
                                                       check_project_id)
 
 from ansible.module_utils.selvpc_utils.wrappers import (create_object_wrapper,
@@ -22,7 +22,7 @@ def add_role(module, client, project_id, project_name, user_id):
 @create_object_wrapper('role')
 def add_bulk_roles(module, client, roles):
     result, changed, msg = None, False, "Roles are already in project"
-    to_add = _check_project_roles(client, roles)
+    to_add = get_project_roles_to_add(client, roles)
     if to_add:
         result = client.roles.add({"roles": to_add})
         changed, msg = True, "Roles have been added successfully"

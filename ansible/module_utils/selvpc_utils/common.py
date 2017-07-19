@@ -1,8 +1,8 @@
-from functools import wraps
 import ipaddress
 
+from functools import wraps
+
 from selvpcclient.exceptions.base import ClientException
-from selvpcclient.util import process_partial_quotas
 
 
 def _check_project_exists(client, project_id):
@@ -42,18 +42,6 @@ def _check_quotas_changes(client, after_quotas, project_id):
     return False
 
 
-def _check_project_roles(client, roles):
-    to_add = []
-    try:
-        for role in roles:
-            if role not in [r._info for r in
-                            client.roles.get_project_roles(role["project_id"])]:
-                to_add.append(role)
-    except ClientException:
-        raise ClientException(message="No such project")
-    return to_add
-
-
 def _check_valid_quantity(objects):
     for obj in objects:
         if obj["quantity"] < 0:
@@ -64,7 +52,7 @@ def _check_valid_quantity(objects):
 def _check_valid_ip(floatingip):
     try:
         ipaddress.ip_address(unicode(floatingip))
-    except Exception:
+    except (ipaddress.AddressValueError, ipaddress.NetmaskValueError):
         return False
     return True
 
@@ -72,6 +60,18 @@ def _check_valid_ip(floatingip):
 def generate_result_msg(msg):
     default = "Desirable state already in project"
     return " ".join(msg).capitalize() if msg else default
+
+
+def get_project_roles_to_add(client, roles):
+    to_add = []
+    try:
+        for role in roles:
+            if role not in [r._info for r in
+                            client.roles.get_project_roles(role["project_id"])]:
+                to_add.append(role)
+    except ClientException:
+        raise ClientException(message="No such project")
+    return to_add
 
 
 def get_project_by_name(client, project_name):
@@ -139,6 +139,24 @@ def compare_existed_and_needed_objects(before, after, force):
     return {}, {}
 
 
+def get_customization_params(client, project_id, logo, color, cname):
+    project_info = client.projects.show(project_id, return_raw=True)
+    theme = project_info["theme"]
+    to_update = {}
+
+    if color and theme["color"] != '#' + color:
+        to_update["color"] = color
+    if cname:
+        if not cname.startswith("https://"):
+            cname += "https://"
+        if project_info["custom_url"] != cname:
+            to_update["cname"] = cname
+    if logo:
+        # TODO: check if logo is actual
+        to_update["logo"] = logo
+    return to_update
+
+
 def check_project_id(func):
     """
     Decorator checks 'project_id' param and if it's None than tries to find
@@ -183,7 +201,8 @@ def clear_quotas(quotas):
     return to_clear
 
 
-def abort_particle_response_task(module, client, resp, project_id=None,
+def abort_particle_response_task(module, client, resp,
+                                 project_id=None,
                                  is_quotas=False):
     """Delete all created objects and generate message."""
 

@@ -5,6 +5,12 @@
 Modules implement VPC project management via VPC Resell API. 'python-selvpcclient' is used to work with the API.
 Modules cover all methods of 'python-selvpcclient'.
 
+## Overview
+
+- [Installation](#installation)
+- [Docs](#included-modules)
+- [Issue tracking](https://github.com/selectel/ansible-selvpc-modules/issues)
+
 ## Installation: 
 ```sh
 $ virtualenv --no-site-packages env
@@ -13,17 +19,7 @@ $ source env/bin/activate
 (env)$ pip install ansible-selvpc-modules
 ``` 
 - Before you start be sure that you have **SEL_URL** и **SEL_TOKEN** variables in your environment.  
-(You can get API token here: https://my.selectel.ru/profile/apikeys)
-
-## Usage:
-- Ad-hoc commands: 
-```sh
-(env)$ ansible localhost -m <selvpc_*> -a "<key-valueparams>"
-```
-- Playbooks:
-```sh
-(env)$ ansible-playbook someplaybook.yaml
-```
+(You can get API token [here](https://my.selectel.ru/profile/apikeys))
 
 ## Included modules:
 - **selvpc_projects**:
@@ -444,25 +440,7 @@ $ source env/bin/activate
     state: present
 ```
 
-## Playbook example:  
-- https://github.com/selectel/ansible-selvpc-modules/blob/master/examples/example.yaml
-- https://github.com/selectel/ansible-selvpc-modules/blob/master/examples/example_vars.yaml
-
-
-Before running the example make sure that these packages are already installed:
-```sh
-shade
-jmespath
-``` 
-Also these environment variables have to be in your env:
-```sh
-OS_PROJECT_DOMAIN_NAME=<YOUR-DOMAIN-NAME>
-OS_USER_DOMAIN_NAME=<YOUR-DOMAIN-NAME>
-ANSIBLE_HOST_KEY_CHECKING=False
-``` 
-
 License
 -------
 
 Apache 2.0
-

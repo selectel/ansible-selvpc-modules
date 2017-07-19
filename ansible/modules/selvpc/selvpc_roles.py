@@ -83,7 +83,7 @@ from ansible.module_utils.selvpc_utils.roles import (delete_role, add_role,
                                                      get_project_roles,
                                                      get_user_roles)
 from ansible.module_utils.selvpc_utils.common import (_check_user_role,
-                                                      _check_project_roles,
+                                                      get_project_roles_to_add,
                                                       get_project_by_name)
 from ansible.modules.selvpc import custom_user_agent
 
@@ -110,7 +110,7 @@ def _system_state_change(module, client):
                 project_id = project.id
             return False if _check_user_role(
                 client, project_id, user_id) else True
-        if _check_project_roles(client, roles):
+        if get_project_roles_to_add(client, roles):
             return True
     return False
 

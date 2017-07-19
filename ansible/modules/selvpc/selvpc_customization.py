@@ -26,9 +26,21 @@ from ansible.module_utils.selvpc_utils import wrappers
 
 
 @wrappers.update_object_wrapper
-def update_domain_theme(module, client, logo, color):
-    client.customization.update(logo=logo, color=color)
-    return True, "Theme updated"
+def update_domain_theme(module, client, logo=None, color=None):
+    current_theme = client.customization.show(return_raw=True)
+    changed, msg = False, "Nothing to update"
+    to_update = {}
+
+    if current_theme["color"] != '#' + color:
+        to_update["color"] = color
+    if logo:
+        # TODO: check if logo is actual
+        to_update["logo"] = logo
+
+    if to_update:
+        client.customization.update(logo=logo, color=color)
+        changed, msg = True, "Theme updated"
+    return changed, msg
 
 
 @wrappers.get_object_wrapper('domain')
@@ -47,7 +59,7 @@ def main():
         token=dict(type='str', no_log=True),
         logo=dict(type='str'),
         color=dict(type='str')
-    ), supports_check_mode=True)
+    ), supports_check_mode=False)
 
     state = module.params.get('state')
     logo = module.params.get('logo')
@@ -70,7 +82,8 @@ def main():
 
     if state == 'present' and (logo or color):
         update_domain_theme(module, client, logo, color)
-    elif state == "present":
+
+    if state == "present":
         show_domain_theme(module, client)
 
     if state == 'absent':
