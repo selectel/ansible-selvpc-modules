@@ -16,7 +16,7 @@ Modules cover all methods of 'python-selvpcclient'.
 $ virtualenv --no-site-packages env
 $ source env/bin/activate
 
-(env)$ pip install ansible-selvpc-modules
+(env)$ pip install git+https://github.com/selectel/ansible-selvpc-modules
 ``` 
 - Before you start be sure that you have **SEL_URL** и **SEL_TOKEN** variables in your environment.  
 (You can get API token [here](https://my.selectel.ru/profile/apikeys))
