@@ -15,6 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.selvpc_utils.common import (_check_user_exists,
+                                                      get_user_by_name)
+from ansible.module_utils.selvpc_utils.users import (create_user, delete_user,
+                                                     get_users, update_user)
+from ansible.modules.selvpc import custom_user_agent
+from selvpcclient.client import Client, setup_http_client
+
 DOCUMENTATION = '''
 ---
 module: selvpc_users
@@ -64,7 +74,8 @@ options:
 requirements:
   - python-selvpcclient
 note:
-  - For operations where 'project_id' is needed you can use 'project_name' instead
+  - For operations where 'project_id' is needed you can use 'project_name'
+  instead
 '''
 
 EXAMPLES = '''
@@ -73,16 +84,6 @@ EXAMPLES = '''
     username: <username>
     password: <password>
 '''
-
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.users import (delete_user, create_user,
-                                                     update_user, get_users)
-from ansible.module_utils.selvpc_utils.common import (get_user_by_name,
-                                                      _check_user_exists)
-from ansible.modules.selvpc import custom_user_agent
 
 
 def _system_state_change(module, client):
@@ -152,13 +153,12 @@ def main():
             create_user(module, client, username, password, enabled)
 
         if user_id and (new_username or new_password) or (new_username and
-                                                              new_password):
+                                                          new_password):
             update_user(module, client, user_id,
                         new_username, new_password, enabled)
         get_users(module, client)
     module.fail_json(msg="No params for 'users' operations.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

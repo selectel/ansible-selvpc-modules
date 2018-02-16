@@ -1,5 +1,3 @@
-import pytest
-
 from ansible.module_utils.selvpc_utils.licenses import \
     parse_licenses_to_add
 from ansible.module_utils.selvpc_utils.subnets import \

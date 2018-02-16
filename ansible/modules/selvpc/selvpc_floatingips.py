@@ -15,6 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.modules.selvpc import custom_user_agent
+from selvpcclient.client import Client, setup_http_client
+
+from ansible.module_utils.selvpc_utils import common as c
+from ansible.module_utils.selvpc_utils import floatingips as f
+
 DOCUMENTATION = '''
 ---
 module: selvpc_floatingips
@@ -61,7 +71,8 @@ options:
 requirements:
   - python-selvpcclient
 note:
-    - For operations where 'project_id' is needed you can use 'project_name' instead
+    - For operations where 'project_id' is needed you can use 'project_name'
+    instead
 '''
 
 EXAMPLES = '''
@@ -98,22 +109,6 @@ EXAMPLES = '''
     floatingip_id: <floating ip id>
 '''
 
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.floatingips import (delete_floatingip,
-                                                           add_floatingips,
-                                                           get_floatingips,
-                                                           parse_floatingips_to_add,
-                                                           get_project_ips_quantity)
-from ansible.module_utils.selvpc_utils.common import (get_project_by_name,
-                                                      compare_existed_and_needed_objects,
-                                                      _check_valid_quantity,
-                                                      get_floatingip_by_ip,
-                                                      _check_valid_ip)
-from ansible.modules.selvpc import custom_user_agent
-
 
 def _check_floatingip_exists(client, floatingip_id):
     try:
@@ -130,24 +125,25 @@ def _system_state_change(module, client):
         floatingip = module.params.get('floatingip')
         if floatingip_id:
             return _check_floatingip_exists(client, floatingip_id)
-        if floatingip and _check_valid_ip(floatingip):
-            return True if get_floatingip_by_ip(client, floatingip) else False
+        if floatingip and c._check_valid_ip(floatingip):
+            return True \
+                if c.get_floatingip_by_ip(client, floatingip) else False
     if state == 'present':
         floatingips = module.params.get('floatingips')
         project_name = module.params.get('project_name')
         project_id = module.params.get('floatingip_id')
         force = module.params.get('force')
-        if not _check_valid_quantity(floatingips):
+        if not c._check_valid_quantity(floatingips):
             return False
         if (project_name or project_id) and floatingips:
             if not project_id:
-                project = get_project_by_name(client, project_name)
+                project = c.get_project_by_name(client, project_name)
                 if not project:
                     return False
                 project_id = project.id
-            parsed_ips = parse_floatingips_to_add(floatingips)
-            actual_ips = get_project_ips_quantity(client, project_id)
-            to_add, to_del = compare_existed_and_needed_objects(
+            parsed_ips = f.parse_floatingips_to_add(floatingips)
+            actual_ips = f.get_project_ips_quantity(client, project_id)
+            to_add, to_del = c.compare_existed_and_needed_objects(
                 actual_ips, parsed_ips, force)
             return True if to_add or to_del else False
     return False
@@ -194,19 +190,18 @@ def main():
         module.exit_json(changed=_system_state_change(module, client))
 
     if state == 'absent' and (floatingip_id or floatingip):
-        delete_floatingip(module, client, floatingip_id, floatingip)
+        f.delete_floatingip(module, client, floatingip_id, floatingip)
 
     if state == 'present':
         if floatingips and (project_id or project_name):
-            add_floatingips(module, client, project_id,
-                            project_name, floatingips, force)
+            f.add_floatingips(module, client, project_id,
+                              project_name, floatingips, force)
 
         if floatingip_id and not show_list or show_list:
-            get_floatingips(module, client, floatingip_id,
-                            show_list=show_list)
+            f.get_floatingips(module, client, floatingip_id,
+                              show_list=show_list)
     module.fail_json(msg="No params for 'floatingips' operations.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

@@ -15,6 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+from selvpcclient.client import Client, setup_http_client
+
+from ansible.modules.selvpc import custom_user_agent
+from ansible.module_utils.selvpc_utils import common as c
+from ansible.module_utils.selvpc_utils import roles as r
+
+
 DOCUMENTATION = '''
 ---
 module: selvpc_roles
@@ -74,19 +84,6 @@ EXAMPLES = '''
         user_id: <user id>
 '''
 
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.roles import (delete_role, add_role,
-                                                     add_bulk_roles,
-                                                     get_project_roles,
-                                                     get_user_roles)
-from ansible.module_utils.selvpc_utils.common import (_check_user_role,
-                                                      _check_project_roles,
-                                                      get_project_by_name)
-from ansible.modules.selvpc import custom_user_agent
-
 
 def _system_state_change(module, client):
     state = module.params.get('state')
@@ -96,21 +93,21 @@ def _system_state_change(module, client):
     project_name = module.params.get('project_name')
     if state == 'absent':
         if not project_id:
-            project = get_project_by_name(client, project_name)
+            project = c.get_project_by_name(client, project_name)
             if not project:
                 return False
             project_id = project.id
-        return _check_user_role(client, project_id, user_id)
+        return c._check_user_role(client, project_id, user_id)
     if state == 'present':
         if (project_id or project_name) and user_id:
             if not project_id:
-                project = get_project_by_name(client, project_name)
+                project = c.get_project_by_name(client, project_name)
                 if not project:
                     return False
                 project_id = project.id
-            return False if _check_user_role(
+            return False if c._check_user_role(
                 client, project_id, user_id) else True
-        if _check_project_roles(client, roles):
+        if c._check_project_roles(client, roles):
             return True
     return False
 
@@ -150,23 +147,22 @@ def main():
         module.exit_json(changed=_system_state_change(module, client))
 
     if state == 'absent' and (project_id or project_name) and user_id:
-        delete_role(module, client, project_id, project_name, user_id)
+        r.delete_role(module, client, project_id, project_name, user_id)
 
     if state == 'present':
         if user_id and (project_id or project_name):
-            add_role(module, client, project_id, project_name, user_id)
+            r.add_role(module, client, project_id, project_name, user_id)
 
         if roles:
-            add_bulk_roles(module, client, roles)
+            r.add_bulk_roles(module, client, roles)
 
         if user_id:
-            get_user_roles(module, client, user_id)
+            r.get_user_roles(module, client, user_id)
 
         if project_id or project_name:
-            get_project_roles(module, client, project_id, project_name)
+            r.get_project_roles(module, client, project_id, project_name)
     module.fail_json(msg="No params for 'roles' operations.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

@@ -1,8 +1,7 @@
-from functools import wraps
 import ipaddress
+from functools import wraps
 
 from selvpcclient.exceptions.base import ClientException
-from selvpcclient.util import process_partial_quotas
 
 
 def _check_project_exists(client, project_id):
@@ -33,10 +32,12 @@ def _check_quotas_changes(client, after_quotas, project_id):
     before_quotas_json = before_quotas._info
     for key in after_quotas:
         for quota in after_quotas[key]:
-            item = [item for item in before_quotas_json[key]
-                    if item["region"] == quota["region"]
-                    and item["zone"] == quota["zone"]
-                    and item["value"] == quota["value"]]
+            item = [
+                item for item in before_quotas_json[key]
+                if (item["region"] == quota["region"] and
+                    item["zone"] == quota["zone"] and
+                    item["value"] == quota["value"])
+            ]
             if not item:
                 return True
     return False
@@ -46,8 +47,10 @@ def _check_project_roles(client, roles):
     to_add = []
     try:
         for role in roles:
-            if role not in [r._info for r in
-                            client.roles.get_project_roles(role["project_id"])]:
+            if role not in [
+                r._info for r in
+                client.roles.get_project_roles(role["project_id"])
+            ]:
                 to_add.append(role)
     except ClientException:
         raise ClientException(message="No such project")
@@ -62,6 +65,11 @@ def _check_valid_quantity(objects):
 
 
 def _check_valid_ip(floatingip):
+    # Python 3 compatibility hack
+    try:
+        unicode('')
+    except NameError:
+        unicode = str
     try:
         ipaddress.ip_address(unicode(floatingip))
     except Exception:
@@ -97,7 +105,8 @@ def get_floatingip_by_ip(client, floatingip):
 def compare_existed_and_needed_objects(before, after, force):
     """
     Compares two dicts
-    :param boolean force: param for deleting "ACTIVE" status objects (if needed)
+    :param boolean force: param for deleting "ACTIVE" status objects
+    (if needed)
     :param dict before: objects that we have in project
     :param dict after: objects that need to create
     :return: objects that need to create and dict with quantity objects that
@@ -113,8 +122,8 @@ def compare_existed_and_needed_objects(before, after, force):
             if n_key not in before:
                 to_create.update({n_key: after.get(n_key)})
             else:
-                active, down = before.get(n_key)["ACTIVE"], \
-                               before.get(n_key)["DOWN"]
+                active = before.get(n_key)["ACTIVE"]
+                down = before.get(n_key)["DOWN"]
                 before_quantity = active + down
                 after_quantity = after.get(n_key)
                 if after_quantity == before_quantity:
@@ -123,7 +132,7 @@ def compare_existed_and_needed_objects(before, after, force):
                     to_create.pop(n_key)
                     if not force:
                         if (down >= after_quantity - active and
-                                    after_quantity >= active):
+                                after_quantity >= active):
                             to_delete.update(
                                 {n_key: down - (after_quantity - active)})
                         else:
@@ -144,7 +153,7 @@ def check_project_id(func):
     Decorator checks 'project_id' param and if it's None than tries to find
     specific project by 'project_name'. If it's not found than raises
     an exception.
-    :param func: function 
+    :param func: function
     :return: decorated func
     """
 
@@ -177,9 +186,11 @@ def make_plural(word):
 def clear_quotas(quotas):
     to_clear = {"quotas": {}}
     for item in quotas:
-        to_clear["quotas"].update({item["resource"]:
-                                       {"region": item["region"],
-                                        "value": 0}})
+        to_clear["quotas"].update(
+            {
+                item["resource"]: {"region": item["region"], "value": 0}
+            }
+        )
     return to_clear
 
 

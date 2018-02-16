@@ -5,11 +5,12 @@ from selvpcclient.exceptions.base import ClientException
 from ansible.module_utils.selvpc_utils.common import make_plural
 
 
-def create_object_wrapper(object_type):
+def create_object(object_type):
     """
     Covers functions that deal with object creating, catches exceptions
     and parse results. Also adds "object_type" as json key with results.
     """
+
     def decorator(func):
         @wraps(func)
         def inner(*args, **kwargs):
@@ -24,30 +25,40 @@ def create_object_wrapper(object_type):
                     if isinstance(result, dict):
                         if "added" in result:
                             params.update(
-                                {make_plural(object_type):
-                                     [el._info for el in result["added"]]}
+                                {
+                                    make_plural(object_type):
+                                        [el._info for el in result["added"]]
+                                }
                             )
                         if "deleted" in result:
                             params.update(
-                                {make_plural(object_type) + "_deleted":
-                                    result["deleted"]}
+                                {
+                                    make_plural(object_type) + "_deleted":
+                                        result["deleted"]
+                                }
                             )
                     elif isinstance(result, list):
-                        params.update({make_plural(object_type):
-                                           [el._info for el in result]})
+                        params.update(
+                            {
+                                make_plural(object_type):
+                                    [el._info for el in result]
+                            }
+                        )
                     else:
                         params.update({object_type: result._info})
             return args[0].exit_json(**params)
 
         return inner
+
     return decorator
 
 
-def get_object_wrapper(object_type):
+def get_object(object_type):
     """
     Covers functions that getting objects info, catches exceptions
     and parse results
     """
+
     def decorator(func):
         @wraps(func)
         def inner(*args, **kwargs):
@@ -58,17 +69,22 @@ def get_object_wrapper(object_type):
                 return args[0].fail_json(msg=str(exp))
             else:
                 if isinstance(result, list):
-                    params.update({make_plural(object_type):
-                                       [el._info for el in result]})
+                    params.update(
+                        {
+                            make_plural(object_type):
+                                [el._info for el in result]
+                        }
+                    )
                 else:
                     params.update({object_type: result._info})
             return args[0].exit_json(**params)
 
         return inner
+
     return decorator
 
 
-def delete_object_wrapper(func):
+def delete_object(func):
     """
     Covers functions that delete objects, catches exceptions
     and parse results
@@ -86,7 +102,7 @@ def delete_object_wrapper(func):
     return inner
 
 
-def update_object_wrapper(func):
+def update_object(func):
     """
     Covers functions that update objects, catches exceptions
     and parse results

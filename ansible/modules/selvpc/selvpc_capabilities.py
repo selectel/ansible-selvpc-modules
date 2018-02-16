@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.modules.selvpc import custom_user_agent
+
+from selvpcclient.client import Client, setup_http_client
+from selvpcclient.exceptions.base import ClientException
+
+
 DOCUMENTATION = '''
 ---
 module: selvpc_capabilities
@@ -43,13 +52,6 @@ EXAMPLES = '''
       state: present
 '''
 
-import os
-
-from selvpcclient.client import setup_http_client, Client
-from selvpcclient.exceptions.base import ClientException
-
-from ansible.modules.selvpc import custom_user_agent
-
 
 def main():
     module = AnsibleModule(argument_spec=dict(
@@ -71,7 +73,7 @@ def main():
                                         api_token=token,
                                         custom_headers=custom_user_agent)
         client = Client(http_client)
-    except Exception as exp:
+    except Exception:
         module.fail_json(msg="No token given")
 
     if module.check_mode:
@@ -86,6 +88,5 @@ def main():
     module.fail_json(msg="Wrong 'state' param for 'capabilities' operation.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

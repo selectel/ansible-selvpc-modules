@@ -14,6 +14,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+from selvpcclient.client import Client, setup_http_client
+
+from ansible.modules.selvpc import custom_user_agent
+from ansible.module_utils.selvpc_utils import common as c
+from ansible.module_utils.selvpc_utils import quotas as q
 
 DOCUMENTATION = '''
 ---
@@ -45,12 +53,13 @@ options:
     description:
     - Selectel VPC project ID
   quotas:
-    description: 
+    description:
     - Project quotas
 requirements:
   - python-selvpcclient
 note:
-    - For operations where 'project_id' is needed you can use 'project_name' instead
+    - For operations where 'project_id' is needed you can use 'project_name'
+    instead
 '''
 
 EXAMPLES = '''
@@ -78,16 +87,6 @@ EXAMPLES = '''
     list: True
 '''
 
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.quotas import (set_quotas,
-                                                      get_project_quotas)
-from ansible.module_utils.selvpc_utils.common import (get_project_by_name,
-                                                      _check_quotas_changes)
-from ansible.modules.selvpc import custom_user_agent
-
 
 def _system_state_change(module, client):
     state = module.params.get('state')
@@ -96,11 +95,11 @@ def _system_state_change(module, client):
         quotas = module.params.get('quotas')
         if not project_id and quotas:
             project_name = module.params.get('project_name')
-            project = get_project_by_name(client, project_name)
+            project = c.get_project_by_name(client, project_name)
             if project:
                 project_id = project.id
         if quotas and project_id:
-            return _check_quotas_changes(client, quotas, project_id)
+            return c._check_quotas_changes(client, quotas, project_id)
     return False
 
 
@@ -140,16 +139,16 @@ def main():
 
     if state == "present":
         if quotas and (project_id or project_name):
-            set_quotas(module, client, project_id, project_name, quotas)
+            q.set_quotas(module, client, project_id, project_name, quotas)
 
         if ((project_id or project_name) and not show_list) or show_list:
-            get_project_quotas(module, client, project_id, project_name,
-                               show_list=show_list)
+            q.get_project_quotas(module, client, project_id, project_name,
+                                 show_list=show_list)
 
     if state == "absent":
         module.fail_json(msg="Wrong state for 'selvpc_quotas' operations.")
     module.fail_json(msg="No params for 'selvpc_quotas' operations.")
 
-from ansible.module_utils.basic import AnsibleModule
+
 if __name__ == '__main__':
     main()

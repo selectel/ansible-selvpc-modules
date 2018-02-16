@@ -15,6 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+
+from ansible.module_utils.selvpc_utils.limits import (get_domain_quotas,
+                                                      get_free_domain_quotas)
+from ansible.modules.selvpc import custom_user_agent
+from selvpcclient.client import Client, setup_http_client
+
+
 DOCUMENTATION = '''
 ---
 module: selvpc_limits
@@ -50,14 +60,6 @@ EXAMPLES = '''
 - selvpc_limits:
     free: True
 '''
-
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.limits import (get_domain_quotas,
-                                                      get_free_domain_quotas)
-from ansible.modules.selvpc import custom_user_agent
 
 
 def main():
@@ -97,8 +99,6 @@ def main():
         module.fail_json(msg="Wrong state for 'selvpc_limits' operations.")
     module.fail_json(msg="No params for 'selvpc_limits' operations.")
 
-
-from ansible.module_utils.basic import AnsibleModule
 
 if __name__ == '__main__':
     main()

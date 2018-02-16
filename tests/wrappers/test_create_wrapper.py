@@ -1,15 +1,13 @@
-import pytest
-
-from ansible.module_utils.selvpc_utils.wrappers import create_object_wrapper
-from tests.mock_objects import get_mocked_module, get_mocked_client
+from ansible.module_utils.selvpc_utils.wrappers import create_object
 from tests import params
+from tests.mock_objects import get_mocked_module, get_mocked_client
 
 
 def test_create_project():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @create_object_wrapper('project')
+    @create_object('project')
     def function_that_return_project_params(module, client):
         return params.PROJECT_OBJECT, True, params.PROJECT_CREATED_MSG
 
@@ -26,7 +24,7 @@ def test_create_floatinips():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @create_object_wrapper('floatingip')
+    @create_object('floatingip')
     def function_that_return_fips_params(module, client):
         return params.FLOATING_IPS_RESP, True, params.FLOATING_IP_CREATED_MSG
 
@@ -43,7 +41,7 @@ def test_create_floatingips_state_is_actual():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @create_object_wrapper('floatingip')
+    @create_object('floatingip')
     def function_that_return_fips_params(module, client):
         return [], False, "Desirable state already in project"
 

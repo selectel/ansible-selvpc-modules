@@ -1,17 +1,15 @@
-import pytest
-
 from selvpcclient.exceptions.base import ClientException
 
-from ansible.module_utils.selvpc_utils.wrappers import delete_object_wrapper
-from tests.mock_objects import get_mocked_module, get_mocked_client
+from ansible.module_utils.selvpc_utils.wrappers import delete_object
 from tests import params
+from tests.mock_objects import get_mocked_module, get_mocked_client
 
 
 def test_delete_object():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @delete_object_wrapper
+    @delete_object
     def function_that_delete_object(module, client):
         pass
 
@@ -28,7 +26,7 @@ def test_delete_no_object():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @delete_object_wrapper
+    @delete_object
     def function_that_delete_object(module, client):
         raise ClientException
 

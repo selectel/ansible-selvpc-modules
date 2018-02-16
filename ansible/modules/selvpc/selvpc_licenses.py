@@ -15,6 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+
+from selvpcclient.client import Client, setup_http_client
+
+from ansible.modules.selvpc import custom_user_agent
+from ansible.module_utils.selvpc_utils import common as c
+from ansible.module_utils.selvpc_utils import licenses as lic
+
+
 DOCUMENTATION = '''
 ---
 module: selvpc_licenses
@@ -47,7 +58,8 @@ options:
     - Selectel VPC project ID
   licenses:
     description:
-    - Array of licenses [{'region': <region>, 'quantity': <quantity>, 'type': <type>}]
+    - Array of licenses [{'region': <region>, 'quantity': <quantity>,
+    'type': <type>}]
   licenses_id:
     description:
     - Licenses ID
@@ -58,7 +70,8 @@ options:
 requirements:
   - python-selvpcclient
 note:
-    - For operations where 'project_id' is needed you can use 'project_name' instead
+    - For operations where 'project_id' is needed you can use 'project_name'
+    instead
 '''
 
 EXAMPLES = '''
@@ -95,20 +108,6 @@ EXAMPLES = '''
     license_id: <licenses id>
 '''
 
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.licenses import (delete_license,
-                                                        get_licenses,
-                                                        add_licenses,
-                                                        parse_licenses_to_add,
-                                                        get_project_licenses_quantity)
-from ansible.module_utils.selvpc_utils.common import (get_project_by_name,
-                                                      compare_existed_and_needed_objects,
-                                                      _check_valid_quantity)
-from ansible.modules.selvpc import custom_user_agent
-
 
 def _check_license_exists(client, license_id):
     try:
@@ -129,17 +128,18 @@ def _system_state_change(module, client):
         project_name = module.params.get('project_name')
         project_id = module.params.get('project_id')
         force = module.params.get('force')
-        if not _check_valid_quantity(licenses):
+        if not c._check_valid_quantity(licenses):
             return False
         if (project_name or project_id) and licenses:
             if not project_id:
-                project = get_project_by_name(client, project_name)
+                project = c.get_project_by_name(client, project_name)
                 if not project:
                     return False
                 project_id = project.id
-            parsed_subnets = parse_licenses_to_add(licenses)
-            actual_subnets = get_project_licenses_quantity(client, project_id)
-            to_add, to_del = compare_existed_and_needed_objects(
+            parsed_subnets = lic.parse_licenses_to_add(licenses)
+            actual_subnets = lic.get_project_licenses_quantity(
+                client, project_id)
+            to_add, to_del = c.compare_existed_and_needed_objects(
                 actual_subnets, parsed_subnets, force)
             return True if to_add or to_del else False
     return False
@@ -186,19 +186,18 @@ def main():
         module.exit_json(changed=_system_state_change(module, client))
 
     if state == "absent" and license_id:
-        delete_license(module, client, license_id)
+        lic.delete_license(module, client, license_id)
 
     if state == "present":
         if licenses and (project_id or project_name):
-            add_licenses(module, client, project_id, project_name, licenses,
-                         force)
+            lic.add_licenses(module, client, project_id, project_name,
+                             licenses, force)
 
         if license_id and not show_list or show_list:
-            get_licenses(module, client, license_id, detailed,
-                         show_list=show_list)
+            lic.get_licenses(module, client, license_id, detailed,
+                             show_list=show_list)
     module.fail_json(msg="No params for 'licenses' operations.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

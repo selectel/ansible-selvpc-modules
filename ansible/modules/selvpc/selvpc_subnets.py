@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+from selvpcclient.client import Client, setup_http_client
+
+from ansible.modules.selvpc import custom_user_agent
+from ansible.module_utils.selvpc_utils import common as c
+from ansible.module_utils.selvpc_utils import subnets as s
+
 DOCUMENTATION = '''
 ---
 module: selvpc_subnets
@@ -47,7 +56,8 @@ options:
     - Selectel VPC project ID
   subnets:
     description:
-    - Array of subnets [{'region': <region>, 'quantity': <quantity>, 'type': <type>, 'prefix_length': <prefix length>}]
+    - Array of subnets [{'region': <region>, 'quantity': <quantity>,
+    'type': <type>, 'prefix_length': <prefix length>}]
   subnet_id:
     description:
     - Subnet ID
@@ -58,7 +68,8 @@ options:
 requirements:
   - python-selvpcclient
 note:
-    - For operations where 'project_id' is needed you can use 'project_name' instead
+    - For operations where 'project_id' is needed you can use 'project_name'
+    instead
 '''
 
 EXAMPLES = '''
@@ -99,20 +110,6 @@ EXAMPLES = '''
     subnet_id: <subnet id>
 '''
 
-import os
-
-from selvpcclient.client import setup_http_client, Client
-
-from ansible.module_utils.selvpc_utils.subnets import (delete_subnet,
-                                                       add_subnets,
-                                                       get_subnets,
-                                                       get_project_subnets_quantity,
-                                                       parse_subnets_to_add)
-from ansible.module_utils.selvpc_utils.common import (get_project_by_name,
-                                                      compare_existed_and_needed_objects,
-                                                      _check_valid_quantity)
-from ansible.modules.selvpc import custom_user_agent
-
 
 def _check_subnet_exists(client, subnet_id):
     try:
@@ -133,17 +130,17 @@ def _system_state_change(module, client):
         project_name = module.params.get('project_name')
         project_id = module.params.get('project_id')
         force = module.params.get('force')
-        if not _check_valid_quantity(subnets):
+        if not c._check_valid_quantity(subnets):
             return False
         if (project_name or project_id) and subnets:
             if not project_id:
-                project = get_project_by_name(client, project_name)
+                project = c.get_project_by_name(client, project_name)
                 if not project:
                     return False
                 project_id = project.id
-            parsed_subnets = parse_subnets_to_add(subnets)
-            actual_subnets = get_project_subnets_quantity(client, project_id)
-            to_add, to_del = compare_existed_and_needed_objects(
+            parsed_subnets = s.parse_subnets_to_add(subnets)
+            actual_subnets = s.get_project_subnets_quantity(client, project_id)
+            to_add, to_del = c.compare_existed_and_needed_objects(
                 actual_subnets, parsed_subnets, force)
             return True if to_add or to_del else False
     return False
@@ -181,24 +178,23 @@ def main():
                                         api_token=token,
                                         custom_headers=custom_user_agent)
         client = Client(http_client)
-    except Exception as exp:
+    except Exception:
         module.fail_json(msg="No token given")
 
     if module.check_mode:
         module.exit_json(changed=_system_state_change(module, client))
 
     if state == 'absent' and subnet_id:
-        delete_subnet(module, client, subnet_id)
+        s.delete_subnet(module, client, subnet_id)
 
     if state == 'present':
         if subnets and (project_id or project_name):
-            add_subnets(module, client, project_id, project_name, subnets,
-                        force)
+            s.add_subnets(module, client, project_id, project_name, subnets,
+                          force)
         if subnet_id and not show_list or show_list:
-            get_subnets(module, client, subnet_id, show_list=show_list)
+            s.get_subnets(module, client, subnet_id, show_list=show_list)
     module.fail_json(msg="No params for 'subnets' operations.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

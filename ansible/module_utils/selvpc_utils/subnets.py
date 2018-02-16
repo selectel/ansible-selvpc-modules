@@ -3,14 +3,7 @@ from operator import itemgetter
 
 from selvpcclient.base import ParticleResponse
 
-from ansible.module_utils.selvpc_utils.common import (check_project_id,
-                                                      compare_existed_and_needed_objects,
-                                                      _check_valid_quantity,
-                                                      generate_result_msg,
-                                                      abort_particle_response_task)
-from ansible.module_utils.selvpc_utils.wrappers import (create_object_wrapper,
-                                                        get_object_wrapper,
-                                                        delete_object_wrapper)
+from ansible.module_utils.selvpc_utils import common, wrappers
 
 
 def parse_subnets_to_add(subnets):
@@ -60,16 +53,16 @@ def delete_useless_subnets(client, to_delete, project_id):
     return result
 
 
-@create_object_wrapper('subnet')
-@check_project_id
+@wrappers.create_object('subnet')
+@common.check_project_id
 def add_subnets(module, client, project_id, project_name, subnets, force):
     jsonifed_result, changed, msg = {}, False, []
-    if not _check_valid_quantity(subnets):
+    if not common._check_valid_quantity(subnets):
         module.fail_json(msg="Wrong 'quantity'")
 
     parsed_subs = parse_subnets_to_add(subnets)
     actual_subs = get_project_subnets_quantity(client, project_id)
-    to_create, to_delete = compare_existed_and_needed_objects(
+    to_create, to_delete = common.compare_existed_and_needed_objects(
         actual_subs, parsed_subs, force)
     to_create = [{'region': params[0],
                   'type': params[1],
@@ -80,7 +73,7 @@ def add_subnets(module, client, project_id, project_name, subnets, force):
     if to_create:
         result = client.subnets.add(project_id, {"subnets": to_create})
         if isinstance(result, ParticleResponse):
-            abort_particle_response_task(module, client, result)
+            common.abort_particle_response_task(module, client, result)
         changed = True
         msg.append("subnets have been added")
         jsonifed_result.update({"added": result})
@@ -90,15 +83,15 @@ def add_subnets(module, client, project_id, project_name, subnets, force):
         changed = True
         msg.append("some subnets have been deleted")
         jsonifed_result.update({"deleted": result})
-    return jsonifed_result, changed, generate_result_msg(msg)
+    return jsonifed_result, changed, common.generate_result_msg(msg)
 
 
-@delete_object_wrapper
+@wrappers.delete_object
 def delete_subnet(module, client, subnet_id):
     client.subnets.delete(subnet_id)
 
 
-@get_object_wrapper('subnet')
+@wrappers.get_object('subnet')
 def get_subnets(module, client, subnet_id, show_list=False):
     if not show_list:
         return client.subnets.show(subnet_id)

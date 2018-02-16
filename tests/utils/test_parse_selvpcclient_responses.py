@@ -1,11 +1,12 @@
-import pytest
+from ansible.module_utils.selvpc_utils.licenses import \
+    get_project_licenses_quantity
+from ansible.module_utils.selvpc_utils.floatingips import \
+    get_project_ips_quantity
+from ansible.module_utils.selvpc_utils.subnets import \
+    get_project_subnets_quantity
 
-from ansible.module_utils.selvpc_utils.licenses import get_project_licenses_quantity
-from ansible.module_utils.selvpc_utils.floatingips import get_project_ips_quantity
-from ansible.module_utils.selvpc_utils.subnets import get_project_subnets_quantity
-
-from tests.mock_objects import get_mocked_client
 from tests import params
+from tests.mock_objects import get_mocked_client
 
 
 FLOATING_IPS_PARSED_OUTPUT = {

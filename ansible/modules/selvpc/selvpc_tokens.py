@@ -15,6 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.selvpc_utils.common import (_check_project_exists,
+                                                      get_project_by_name)
+from ansible.modules.selvpc import custom_user_agent
+from selvpcclient.client import Client, setup_http_client
+from selvpcclient.exceptions.base import ClientException
+
+
 DOCUMENTATION = '''
 ---
 module: selvpc_tokens
@@ -42,7 +52,8 @@ options:
 requirements:
   - python-selvpcclient
 note:
-  - For operations where 'project_id' is needed you can use 'project_name' instead
+  - For operations where 'project_id' is needed you can use 'project_name'
+  instead
 '''
 
 EXAMPLES = '''
@@ -50,15 +61,6 @@ EXAMPLES = '''
 - selvpc_tokens:
     project_id: <Project ID>
 '''
-
-import os
-
-from selvpcclient.client import setup_http_client, Client
-from selvpcclient.exceptions.base import ClientException
-
-from ansible.module_utils.selvpc_utils.common import (get_project_by_name,
-                                                      _check_project_exists)
-from ansible.modules.selvpc import custom_user_agent
 
 
 def _system_state_change(module, client):
@@ -120,6 +122,5 @@ def main():
     module.fail_json(msg="No params for 'tokens' operations.")
 
 
-from ansible.module_utils.basic import AnsibleModule
 if __name__ == '__main__':
     main()

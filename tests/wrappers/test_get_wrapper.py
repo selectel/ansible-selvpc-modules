@@ -1,15 +1,13 @@
-import pytest
-
-from ansible.module_utils.selvpc_utils.wrappers import get_object_wrapper
-from tests.mock_objects import get_mocked_module, get_mocked_client
+from ansible.module_utils.selvpc_utils.wrappers import get_object
 from tests import params
+from tests.mock_objects import get_mocked_module, get_mocked_client
 
 
 def test_get_project_list():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @get_object_wrapper('project')
+    @get_object('project')
     def function_that_return_project_params(module, client):
         return params.PROJECT_LIST
 
@@ -26,7 +24,7 @@ def test_get_floatingips_list():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @get_object_wrapper('floatingip')
+    @get_object('floatingip')
     def function_that_return_fips_params(module, client):
         return params.FLOATING_IPS_LIST
 
@@ -43,7 +41,7 @@ def test_get_subnets_list():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @get_object_wrapper('subnet')
+    @get_object('subnet')
     def function_that_return_subnets_params(module, client):
         return params.SUBNETS_LIST
 
@@ -60,7 +58,7 @@ def test_get_licenses_list():
     client = get_mocked_client()
     module = get_mocked_module()
 
-    @get_object_wrapper('license')
+    @get_object('license')
     def function_that_return_license_params(module, client):
         return params.LICENSES_LIST
 

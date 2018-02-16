@@ -4,16 +4,7 @@ from operator import itemgetter
 from selvpcclient.base import ParticleResponse
 from selvpcclient.exceptions.base import ClientException
 
-from ansible.module_utils.selvpc_utils.common import (check_project_id,
-                                                      compare_existed_and_needed_objects,
-                                                      _check_valid_quantity,
-                                                      get_floatingip_by_ip,
-                                                      _check_valid_ip,
-                                                      generate_result_msg,
-                                                      abort_particle_response_task)
-from ansible.module_utils.selvpc_utils.wrappers import (create_object_wrapper,
-                                                        get_object_wrapper,
-                                                        delete_object_wrapper)
+from ansible.module_utils.selvpc_utils import common, wrappers
 
 
 def parse_floatingips_to_add(floatingips):
@@ -61,19 +52,20 @@ def delete_useless_ips(client, to_delete, project_id):
     return result
 
 
-@create_object_wrapper('floatingip')
-@check_project_id
+@wrappers.create_object('floatingip')
+@common.check_project_id
 def add_floatingips(module, client, project_id,
                     project_name, floatingips, force):
     jsonifed_result, changed, msg = {}, False, []
-    if not _check_valid_quantity(floatingips):
+    if not common._check_valid_quantity(floatingips):
         module.fail_json(msg="Wrong 'quantity'")
 
     parsed_ips = parse_floatingips_to_add(floatingips)
     actual_ips = get_project_ips_quantity(client, project_id)
-    to_create, to_delete = compare_existed_and_needed_objects(actual_ips,
-                                                              parsed_ips,
-                                                              force)
+    to_create, to_delete = common.compare_existed_and_needed_objects(
+        actual_ips,
+        parsed_ips,
+        force)
     to_create = [{'region': region, 'quantity': quantity}
                  for region, quantity in to_create.items() if quantity]
 
@@ -81,7 +73,7 @@ def add_floatingips(module, client, project_id,
         result = client.floatingips.add(
             project_id, {"floatingips": to_create})
         if isinstance(result, ParticleResponse):
-            abort_particle_response_task(module, client, result)
+            common.abort_particle_response_task(module, client, result)
         changed = True
         msg.append("floating ips have been added")
         jsonifed_result.update({"added": result})
@@ -90,22 +82,22 @@ def add_floatingips(module, client, project_id,
         changed = True
         msg.append("some ips have been deleted")
         jsonifed_result.update({"deleted": result})
-    return jsonifed_result, changed, generate_result_msg(msg)
+    return jsonifed_result, changed, common.generate_result_msg(msg)
 
 
-@delete_object_wrapper
+@wrappers.delete_object
 def delete_floatingip(module, client, floatingip_id, floatingip):
     if not floatingip_id:
-        if not _check_valid_ip(floatingip):
+        if not common._check_valid_ip(floatingip):
             module.fail_json(msg="IP {} is not valid".format(floatingip))
-        floatingip = get_floatingip_by_ip(client, floatingip)
+        floatingip = common.get_floatingip_by_ip(client, floatingip)
         if not floatingip:
             raise ClientException
         floatingip_id = floatingip.id
     client.floatingips.delete(floatingip_id)
 
 
-@get_object_wrapper('floatingip')
+@wrappers.get_object('floatingip')
 def get_floatingips(module, client, floatingip_id, show_list=False):
     if not show_list:
         return client.floatingips.show(floatingip_id)
