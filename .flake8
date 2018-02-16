@@ -1,0 +1,5 @@
+[flake8]
+# Log messages require translation hints
+ignore = N531
+show-source = true
+exclude = .venv,.git,.tox,dist,doc,*lib/python*,*egg,build,tools,.ropeproject,rally-scenarios
