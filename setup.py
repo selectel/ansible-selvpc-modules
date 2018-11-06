@@ -10,7 +10,7 @@ setup(
     packages=["ansible/modules/selvpc",
               "ansible/module_utils/selvpc_utils"],
     install_requires=[
-        'ansible',
-        'python-selvpcclient'
-    ]
+        'ansible==2.6.3',
+        'python-selvpcclient==1.0'
+    ],
 )
