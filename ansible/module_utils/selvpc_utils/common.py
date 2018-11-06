@@ -194,7 +194,7 @@ def clear_quotas(quotas):
     return to_clear
 
 
-def abort_particle_response_task(module, client, resp, project_id=None,
+def abort_partial_response_task(module, client, resp, project_id=None,
                                  is_quotas=False):
     """Delete all created objects and generate message."""
 
