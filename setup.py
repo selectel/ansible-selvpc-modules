@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='ansible-selvpc-modules',
-    version='1.2.0',
+    version='1.2.2',
     description='Ansible modules for Selectel VPC platform',
     author='Rutskiy Daniil',
     author_email='rutskiy@selectel.ru',
@@ -14,4 +14,3 @@ setup(
         'python-selvpcclient==1.0'
     ],
 )
-
