@@ -21,6 +21,8 @@ $ source env/bin/activate
 - Before you start be sure that you have **SEL_URL** и **SEL_TOKEN** variables in your environment.  
 (You can get API token [here](https://my.selectel.ru/profile/apikeys))
 
+**Note that the modules are compatible with ansible >=2.6.18, <2.7.0 only**
+
 ## Included modules:
 - **selvpc_projects**:
   - description:
