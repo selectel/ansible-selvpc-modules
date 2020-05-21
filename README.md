@@ -17,8 +17,9 @@ $ virtualenv --no-site-packages env
 $ source env/bin/activate
 
 (env)$ pip install git+https://github.com/selectel/ansible-selvpc-modules
+(env)$ export SEL_URL=https://api.selectel.ru/vpc/resell/ SEL_TOKEN=<SELECTEL_API_TOKEN>
 ``` 
-- Before you start be sure that you have **SEL_URL** и **SEL_TOKEN** variables in your environment.  
+- Be sure you have **SEL_URL** и **SEL_TOKEN** variables in your environment.
 (You can get API token [here](https://my.selectel.ru/profile/apikeys))
 
 **Note that the modules are compatible with ansible >=2.6.18, <2.7.0 only**
