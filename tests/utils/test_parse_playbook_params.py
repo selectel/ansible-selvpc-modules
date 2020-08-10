@@ -4,6 +4,8 @@ from ansible.module_utils.selvpc_utils.subnets import \
     parse_subnets_to_add
 from ansible.module_utils.selvpc_utils.floatingips import \
     parse_floatingips_to_add
+from ansible.module_utils.selvpc_utils.vrrp import \
+    parse_vrrp_to_add
 
 FLOATING_IPS_INPUT = [
     {"region": "ru-1", "quantity": 1},
@@ -42,6 +44,18 @@ LICENSES_VALID_OUTPUT = {
     ("ru-2", "license_windows_2012_standard"): 5
 }
 
+VRRP_INPUT = [
+    {"master": "ru-1", "slave": "ru-2", "quantity": 1, "type": "ipv4", "prefix_length": 29},
+    {"master": "ru-5", "slave": "ru-1", "quantity": 1, "type": "ipv4", "prefix_length": 29},
+    {"master": "ru-3", "slave": "ru-4", "quantity": 2, "type": "ipv4", "prefix_length": 25},
+    {"master": "ru-1", "slave": "ru-2", "quantity": 1, "type": "ipv4", "prefix_length": 29}
+]
+
+VRRP_VALID_OUTPUT = {
+    ("ru-1", "ru-2", "ipv4", 29): 2,
+    ("ru-3", "ru-4", "ipv4", 25): 2,
+    ("ru-5", "ru-1", "ipv4", 29): 1
+}
 
 def test_parse_data_floating_ips():
     assert parse_floatingips_to_add(
@@ -54,3 +68,7 @@ def test_parsed_data_subnets():
 
 def test_parsed_data_licenses():
     assert parse_licenses_to_add(LICENSES_INPUT) == LICENSES_VALID_OUTPUT
+
+
+def test_parsed_data_vrrp():
+    assert parse_vrrp_to_add(VRRP_INPUT) == VRRP_VALID_OUTPUT
