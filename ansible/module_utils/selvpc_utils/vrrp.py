@@ -3,7 +3,7 @@ from operator import itemgetter
 
 from selvpcclient.base import ParticleResponse
 
-from ansible.module_utils.selvpc_utils import common,wrappers
+from ansible.module_utils.selvpc_utils import common, wrappers
 
 
 def parse_vrrp_to_add(vrrps):
@@ -40,9 +40,9 @@ def delete_useless_vrrp(client, to_delete, project_id):
             "ipv4",
             int(vrrp.get("cidr")[-2:])) == key]
         vrrp_to_delete.sort(key=itemgetter("status"), reverse=True)
-        for sub in vrrp_to_delete[:to_delete.get(key)]:
-            client.vrrp.delete(sub.get("id"))
-            result.append(sub.get("id"))
+        for vrrp in vrrp_to_delete[:to_delete.get(key)]:
+            client.vrrp.delete(vrrp.get("id"))
+            result.append(vrrp.get("id"))
     return result
 
 
@@ -52,14 +52,13 @@ def add_vrrp(module, client, project_id, project_name, vrrps, force):
     jsonifed_result, changed, msg = {}, False, []
     if not common._check_valid_quantity(vrrps):
         module.fail_json(msg="Wrong 'quantity'")
-
     parsed_vrrp = parse_vrrp_to_add(vrrps)
     actual_vrrp = get_project_vrrp_quantity(client,project_id)
     to_create, to_delete = common.compare_existed_and_needed_objects(
         actual_vrrp, parsed_vrrp, force)
     to_create = [{'regions':{
-                            'master_region': params[0],
-                            'slave_region': params[1]},
+                            'master': params[0],
+                            'slave': params[1]},
                   'type': params[2],
                   'prefix_length': params[3],
                   'quantity': quantity}

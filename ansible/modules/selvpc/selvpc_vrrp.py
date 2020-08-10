@@ -182,7 +182,8 @@ def main():
 
     if state == 'present':
         if vrrp and (project_id or project_name):
-            v.add_vrrp(module, client, project_id, project_name, vrrp)
+            v.add_vrrp(module, client, project_id, project_name, vrrp,
+                       force)
         if vrrp_id and not show_list or show_list:
             v.get_vrrp(module, client, vrrp_id, show_list=show_list)
     module.fail_json(msg="No params for 'vrrp_subnets' operations.")
