@@ -1,7 +1,7 @@
 from collections import defaultdict
 from operator import itemgetter
 
-from selvpcclient.base import ParticleResponse
+from selvpcclient.base import PartialResponse
 from selvpcclient.exceptions.base import ClientException
 
 from ansible.module_utils.selvpc_utils import common, wrappers
@@ -72,7 +72,7 @@ def add_floatingips(module, client, project_id,
     if to_create:
         result = client.floatingips.add(
             project_id, {"floatingips": to_create})
-        if isinstance(result, ParticleResponse):
+        if isinstance(result, PartialResponse):
             common.abort_particle_response_task(module, client, result)
         changed = True
         msg.append("floating ips have been added")

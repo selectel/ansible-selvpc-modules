@@ -1,7 +1,7 @@
 from collections import defaultdict
 from operator import itemgetter
 
-from selvpcclient.base import ParticleResponse
+from selvpcclient.base import PartialResponse
 
 from ansible.module_utils.selvpc_utils import common, wrappers
 
@@ -72,7 +72,7 @@ def add_licenses(module, client, project_id, project_name, licenses, force):
     if to_create:
         result = client.licenses.add(project_id,
                                      {"licenses": to_create})
-        if isinstance(result, ParticleResponse):
+        if isinstance(result, PartialResponse):
             common.abort_particle_response_task(module, client, result)
         changed = True
         msg.append("licenses have been added")

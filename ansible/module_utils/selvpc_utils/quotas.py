@@ -1,4 +1,4 @@
-from selvpcclient.base import ParticleResponse
+from selvpcclient.base import PartialResponse
 
 from ansible.module_utils.selvpc_utils import common, wrappers
 
@@ -9,7 +9,7 @@ def set_quotas(module, client, project_id, project_name, quotas):
     result, changed, msg = None, False, "Project has already had such quotas"
     if common._check_quotas_changes(client, quotas, project_id):
         result = client.quotas.update(project_id, {"quotas": quotas})
-        if isinstance(result, ParticleResponse):
+        if isinstance(result, PartialResponse):
             common.abort_particle_response_task(
                 module, client, result, project_id,
                 is_quotas=True)
