@@ -3,6 +3,7 @@ from selvpcclient.resources.projects import ProjectsManager
 from selvpcclient.resources.floatingips import FloatingIPManager
 from selvpcclient.resources.subnets import SubnetManager
 from selvpcclient.resources.licenses import LicenseManager
+from selvpcclient.resources.vrrp import VRRPManager
 
 ACTUAL_STATE = {
     "changed": False,
@@ -154,6 +155,27 @@ SUBNETS_LIST = [
         "region": "ru-1",
         "status": "DOWN"
     })
+]
+
+VRRP_LIST = [
+    Resource(SubnetManager, {
+        "cidr": "77.214.217.160/29",
+        "master_region": "ru-1",
+        "slave_region": "ru-7",
+        "status": "ACTIVE"
+    }),
+    Resource(SubnetManager, {
+        "cidr": "77.214.217.160/29",
+        "master_region": "ru-1",
+        "slave_region": "ru-7",
+        "status": "DOWN"
+    }),
+    Resource(SubnetManager, {
+        "cidr": "77.214.217.160/29",
+        "master_region": "ru-2",
+        "slave_region": "ru-7",
+        "status": "ACTIVE"
+    }),
 ]
 
 LICENSES_LIST = [
