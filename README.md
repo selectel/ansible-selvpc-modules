@@ -442,7 +442,63 @@ $ source env/bin/activate
 - selvpc_capabilities:
     state: present
 ```
-
+- **selvpc_vrrp**:
+  - description:
+      - selvpc module for VRRP management
+  - options:
+    - token:
+      - description: selectel VPC API token.
+    - state:
+      - description: indicate desired state
+      - required: true
+      - default: present
+      - choices: ['present', 'absent']
+    - list:
+      - description: Option for getting list of desired objects (if possible)
+      - default: false
+    - project_id:
+      - description: Selectel VPC project ID
+    - project_name:
+      - description: Selectel VPC project name
+    - vrrp_subnets:
+      - description: Array of VRRP subnets
+    - vrrp_subnet_id:
+      - description: VRRP Subnet ID
+    - force:
+      - description: if 'true' allows to delete "ACTIVE" VRRP subnet if it's needed
+      - default: false
+  - examples: 
+  ```yaml
+  # Create VRRP subnet
+  - selvpc_vrrp:
+        project_id: <project id>
+        vrrp_subnets:
+        - master_region: ru-1
+          slave_region: ru-7
+          quantity: 2
+          type: ipv4
+          prefix_length: 29
+  # Delete specific VRRP subnet
+  - selvpc_vrrp:
+      state: absent
+      vrrp_subnet_id: <vrrp subnet id>
+  # Get info about all VRRP subnets
+  - selvpc_vrrp:
+      list: True
+  # Get info about specific VRRP subnet
+  - selvpc_vrp:
+      vrrp_subnet_id: <subnet id>
+  # Delete all several VRRP subnets
+  - selvpc_vrrp:
+      project_id: <project id>
+      vrrp_subnets:
+      - master_region: ru-1
+        slave_region: ru-7
+        quantity: 0
+        type: ipv4
+        prefix_length: 29
+        force: True
+  ```
 License
 -------
 
