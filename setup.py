@@ -11,6 +11,6 @@ setup(
               "ansible/module_utils/selvpc_utils"],
     install_requires=[
         'ansible>=2.6.18,<2.7.0',
-        'python-selvpcclient==1.0'
+        'python-selvpcclient==1.4'
     ],
 )
