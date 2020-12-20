@@ -1,7 +1,7 @@
 from collections import defaultdict
 from operator import itemgetter
 
-from selvpcclient.base import ParticleResponse
+from selvpcclient.base import PartialResponse
 
 from ansible.module_utils.selvpc_utils import common, wrappers
 
@@ -72,8 +72,8 @@ def add_subnets(module, client, project_id, project_name, subnets, force):
 
     if to_create:
         result = client.subnets.add(project_id, {"subnets": to_create})
-        if isinstance(result, ParticleResponse):
-            common.abort_particle_response_task(module, client, result)
+        if isinstance(result, PartialResponse):
+            common.abort_partial_response_task(module, client, result)
         changed = True
         msg.append("subnets have been added")
         jsonifed_result.update({"added": result})
