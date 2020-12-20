@@ -499,6 +499,46 @@ $ source env/bin/activate
         prefix_length: 29
         force: True
   ```
+- **selvpc_keypairs**:
+  - description:
+      - selvpc module for keypairs management
+  - options:
+    - token:
+      - description: selectel VPC API token.
+    - state:
+      - description: indicate desired state
+      - required: true
+      - default: present
+      - choices: ['present', 'absent']
+    - list:
+      - description: Option for getting list of desired objects (if possible)
+      - default: false
+    - user_id:
+      - description: User_ID
+    - name:
+      - description: Key name
+    - keypair:
+      - description: Keypair object
+  - examples: 
+  ```yaml
+  # Create keypair
+  - selvpc_keypairs:
+        keypair:
+          name: <key_name>
+          public_key: <public ssh key>
+          regions:
+              - ru-1
+              - ru-7
+          user_id: <user_id>
+  # Delete keypair
+  - selvpc_keypairs:
+      state: absent
+      user_id: <user_id>
+      name: <key_name>
+  # Get info about all keypairs
+  - selvpc_keypairs:
+      list: True
+  ```
 License
 -------
 

@@ -14,7 +14,7 @@ def _check_project_exists(client, project_id):
 
 def _check_user_exists(client, user_id):
     for user in client.users.list():
-        if user == user_id:
+        if user.id == user_id:
             return True
     return False
 
