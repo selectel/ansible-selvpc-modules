@@ -10,6 +10,7 @@ def get_mocked_client():
     client.licenses = Mock()
     client.projects = Mock()
     client.vrrp = Mock()
+    client.keypairs = Mock()
     client.floatingips.list = Mock(
         side_effect=lambda project_id: params.FLOATING_IPS_LIST)
     client.subnets.list = Mock(
@@ -21,6 +22,7 @@ def get_mocked_client():
     )
     client.vrrp.list = Mock(
         side_effect=lambda project_id: params.VRRP_LIST)
+    client.keypairs.list = Mock(return_value=params.KEYPAIR_LIST)
     return client
 
 

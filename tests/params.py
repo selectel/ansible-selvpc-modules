@@ -4,6 +4,7 @@ from selvpcclient.resources.floatingips import FloatingIPManager
 from selvpcclient.resources.subnets import SubnetManager
 from selvpcclient.resources.licenses import LicenseManager
 from selvpcclient.resources.vrrp import VRRPManager
+from selvpcclient.resources.keypairs import KeyPairManager
 
 ACTUAL_STATE = {
     "changed": False,
@@ -178,6 +179,7 @@ VRRP_LIST = [
     }),
 ]
 
+
 LICENSES_LIST = [
     Resource(LicenseManager, {
         "region": "ru-1",
@@ -209,4 +211,37 @@ LICENSES_LIST = [
         "type": "license_windows_2012_standard",
         "status": "ACTIVE"
     })
+]
+
+KEYPAIRS = [
+    ('u1', 'key_1',), ('u2', 'key_1'), ('u3', 'key_1'),
+    ('u1', 'key_2',), ('u2', 'key_2'), ('u3', 'key_2'),
+    ('u1', 'key_3',), ('u2', 'key_3'), ('u3', 'key_3'),
+]
+
+KEYPAIR_LIST = [
+    Resource(KeyPairManager, {
+        "name": "key_1",
+        "public_key": "openssh_1",
+        "region": "ru-1",
+        "user_id": "u1"
+    }),
+    Resource(KeyPairManager, {
+        "name": "key_2",
+        "public_key": "openssh_2",
+        "region": "ru-2",
+        "user_id": "u1"
+    }),
+    Resource(KeyPairManager, {
+        "name": "key_1",
+        "public_key": "openssh_1",
+        "region": "ru-1",
+        "user_id": "u2"
+    }),
+    Resource(KeyPairManager, {
+        "name": "key_3",
+        "public_key": "openssh_3",
+        "region": "ru-1",
+        "user_id": "u3"
+    }),
 ]
