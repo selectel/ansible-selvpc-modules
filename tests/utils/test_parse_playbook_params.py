@@ -46,10 +46,14 @@ LICENSES_VALID_OUTPUT = {
 }
 
 VRRP_INPUT = [
-    {"master_region": "ru-1", "slave_region": "ru-7", "type": "ipv4", "prefix_length": 29, "quantity": 1},
-    {"master_region": "ru-7", "slave_region": "ru-2", "type": "ipv4", "prefix_length": 29, "quantity": 2},
-    {"master_region": "ru-7", "slave_region": "ru-1", "type": "ipv4", "prefix_length": 29, "quantity": 3},
-    {"master_region": "ru-1", "slave_region": "ru-7", "type": "ipv4", "prefix_length": 29, "quantity": 1},
+    {"master_region": "ru-1", "slave_region": "ru-7",
+     "type": "ipv4", "prefix_length": 29, "quantity": 1},
+    {"master_region": "ru-7", "slave_region": "ru-2",
+     "type": "ipv4", "prefix_length": 29, "quantity": 2},
+    {"master_region": "ru-7", "slave_region": "ru-1",
+     "type": "ipv4", "prefix_length": 29, "quantity": 3},
+    {"master_region": "ru-1", "slave_region": "ru-7",
+     "type": "ipv4", "prefix_length": 29, "quantity": 1},
 ]
 
 VRRP_VALID_OUTPUT = {

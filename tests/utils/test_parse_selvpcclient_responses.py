@@ -6,6 +6,9 @@ from ansible.module_utils.selvpc_utils.subnets import \
     get_project_subnets_quantity
 from ansible.module_utils.selvpc_utils.vrrp import \
     get_project_vrrp_subnets_quantity
+from ansible.module_utils.selvpc_utils.keypairs import \
+    keypair_exists
+
 
 from tests import params
 from tests.mock_objects import get_mocked_client
@@ -30,6 +33,12 @@ VRRP_PARSED_OUTPUT = {
     (29, 'ipv4', 'ru-2', 'ru-7'): {'ACTIVE': 1, 'DOWN': 0},
 }
 
+KEYPAIR_EXISTS_OUTPUT = [
+    True, True, False,
+    True, False, False,
+    False, False, True
+]
+
 
 def test_parse_existing_floating_ips():
     client = get_mocked_client()
@@ -53,3 +62,9 @@ def test_parse_existing_vrrp():
     client = get_mocked_client()
     assert get_project_vrrp_subnets_quantity(
         client, params.PROJECT_ID) == VRRP_PARSED_OUTPUT
+
+
+def test_keypair_exists():
+    client = get_mocked_client()
+    for kp, r in zip(params.KEYPAIRS, KEYPAIR_EXISTS_OUTPUT):
+        assert keypair_exists(client, kp[0], kp[1]) == r
